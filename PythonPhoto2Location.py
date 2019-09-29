@@ -1,13 +1,24 @@
+#!/usr/bin/env python3
 import calendar
 import datetime
 import glob
-import os.path
+import os
 import tkinter
 import webbrowser
 from decimal import Decimal
+from sys import exit
+from sys import version_info
 from threading import Thread
-from tkinter import *
+from tkinter import BOTTOM
+from tkinter import END
 from tkinter import filedialog
+from tkinter import Label
+from tkinter import StringVar
+from tkinter import SUNKEN
+from tkinter import Text
+from tkinter import Tk
+from tkinter import W
+from tkinter import X
 from typing import Any
 from typing import Optional
 
@@ -15,12 +26,16 @@ import country_converter as coco
 import pandas as pd
 import reverse_geocoder as rg
 from gmplot import gmplot
-from PIL import Image
+from PIL import Image as PilImage  # 'Image' conflicts with tkinger.Image
 from PIL.ExifTags import GPSTAGS
 from PIL.ExifTags import TAGS
 
-# ADD YOUR OWN GOOGLE MAPS API KEY (the one below is a fake ID)
-google_api_key = "IzaSyD2KMkrfQkzqNBEo-5iZDhDOlbvvDrO0dM"
+if version_info < (3, 6):
+    exit("This tool requires py36+")
+
+google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+if not google_maps_api_key:
+    exit("you must export your Google Maps API key as GOOGLE_MAPS_API_KEY")
 
 # Initialize the main window and all components
 window = tkinter.Tk()
@@ -54,7 +69,7 @@ def get_labeled_exif(exif):
 
 
 def get_exif(filename):
-    image: Optional[Any] = Image.open(filename)
+    image: Optional[Any] = PilImage.open(filename)
     image.verify()
     return image._getexif()
 
@@ -67,7 +82,7 @@ def get_geotagging(exif):
         if tag == "GPSInfo":
             if idx not in exif:
                 # raise ValueError("No EXIF geo_tagging found")
-                error = 1
+                exit("No coords found in EXIF data")
             for (key, val) in GPSTAGS.items():
                 if key in exif[idx]:
                     geo_tagging[val] = exif[idx][key]
@@ -157,9 +172,8 @@ def process():
     text.delete("1.0", END)
     status.config(text="")
     count = 0
-    path = entryText.get() + "/"
-    # path = entryText.get().replace("/", "//")+"//"
-    files = [f for f in glob.glob(path + "**/*.jpg", recursive=True)]
+    os.path = entryText.get() + "/"
+    files = [f for f in glob.glob(os.path + "**/*.jpg", recursive=True)]
     visited_cities = []
     visited_cities_clean = []
     visited_coordinates_lat = []
@@ -194,7 +208,7 @@ def process():
                 month = str(converter(datum).month)
             except:
                 try:
-                    datum = str(Image.open(f)._getexif()[36867]).split(" ", 1)[0]
+                    datum = str(PilImage.open(f)._getexif()[36867]).split(" ", 1)[0]
                     year = str(converter(datum).year)
                     month = str(converter(datum).month)
                 except:
@@ -227,8 +241,7 @@ def process():
                         text.insert(tkinter.END, year + "/" + month + " - " + city + country + "\n")
                         text.see("end")
         except:
-            # print("GPS Data Missing in " + f)
-            error = 2
+            exit(f"GPS Data Missing in {f}")
 
     status_message.set("Processed: " + str(count) + " images")
     label.config(text="")
@@ -236,7 +249,7 @@ def process():
     print("--- GOOGLE MAP Generated ---")
     google_map = gmplot.GoogleMapPlotter(0, 0, 2)
     google_map.coloricon = "http://www.googlemapsmarkers.com/v1/%s/"
-    google_map.apikey = google_api_key
+    google_map.apikey = google_maps_api_key
     google_map.heatmap(visited_coordinates_lat, visited_coordinates_lon)
     google_map.plot(visited_coordinates_lat, visited_coordinates_lon, c="#046CC6", edge_width=1.0)
 
