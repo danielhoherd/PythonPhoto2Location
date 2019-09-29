@@ -21,7 +21,7 @@ clean: ## Delete venv and non-git files (extremely destructive)
 	find . -name '__pycache__' | xargs rm -rf
 
 .PHONY: run
-run: .requirements ## Run the GUI application
+run: venv .requirements ## Run the GUI application
 	. venv/bin/activate && \
 		python3 -m PythonPhoto2Location.py
 
@@ -34,7 +34,7 @@ requirements: .requirements ## Install requirements
 
 .PHONY: requirements-dev
 requirements-dev: .requirements-dev ## Install dev requirements
-.requirements-dev: venv
+.requirements-dev: venv install-hooks
 	. venv/bin/activate && \
 		pip install -r requirements-dev.txt
 	touch .requirements-dev
