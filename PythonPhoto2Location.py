@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import calendar
 import datetime
-import glob
 import os
 import tkinter
 import webbrowser
 from decimal import Decimal
+from pathlib import Path
 from sys import exit
 from sys import version_info
 from threading import Thread
@@ -172,8 +172,8 @@ def process():
     text.delete("1.0", END)
     status.config(text="")
     count = 0
-    os.path = entryText.get() + "/"
-    files = [f for f in glob.glob(os.path + "**/*.jpg", recursive=True)]
+    path = Path(entryText.get())
+    files = [f for f in path.glob("**/*.jpg")]
     visited_cities = []
     visited_cities_clean = []
     visited_coordinates_lat = []
@@ -185,12 +185,11 @@ def process():
     countries = []
 
     for f in files:
-        f = f.replace("\\", "/")
         count = count + 1
         if count % 10 == 0:
             status_message.set("Processing Image: " + str(count) + " of " + str(cpt) + " (" + str(percentage(count, cpt)) + "%)")
         try:
-            exif = get_exif(f)
+            exif = get_exif(f.as_posix())
             geo_tags = get_geotagging(exif)
             coordinates = get_coordinates(geo_tags)
             lat = float(Decimal(coordinates[0]).quantize(Decimal(10) ** -3))
