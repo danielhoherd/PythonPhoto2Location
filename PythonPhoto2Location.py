@@ -1,16 +1,23 @@
-import calendar, datetime, glob, os, os.path, tkinter, webbrowser
+import calendar
+import datetime
+import glob
+import os.path
+import tkinter
+import webbrowser
 from decimal import Decimal
 from threading import Thread
 from tkinter import *
 from tkinter import filedialog
-from typing import Optional, Any
+from typing import Any
+from typing import Optional
+
 import country_converter as coco
 import pandas as pd
 import reverse_geocoder as rg
+from gmplot import gmplot
 from PIL import Image
 from PIL.ExifTags import GPSTAGS
 from PIL.ExifTags import TAGS
-from gmplot import gmplot
 
 # ADD YOUR OWN GOOGLE MAPS API KEY (the one below is a fake ID)
 google_api_key = "IzaSyD2KMkrfQkzqNBEo-5iZDhDOlbvvDrO0dM"
@@ -57,7 +64,7 @@ def get_geotagging(exif):
         raise ValueError("No EXIF metadata found")
     geo_tagging = {}
     for (idx, tag) in TAGS.items():
-        if tag == 'GPSInfo':
+        if tag == "GPSInfo":
             if idx not in exif:
                 # raise ValueError("No EXIF geo_tagging found")
                 error = 1
@@ -71,7 +78,7 @@ def get_decimal_from_dms(dms, ref):
     degrees = dms[0][0] / dms[0][1]
     minutes = dms[1][0] / dms[1][1] / 60.0
     seconds = dms[2][0] / dms[2][1] / 3600.0
-    if ref in ['S', 'W']:
+    if ref in ["S", "W"]:
         degrees = -degrees
         minutes = -minutes
         seconds = -seconds
@@ -79,13 +86,13 @@ def get_decimal_from_dms(dms, ref):
 
 
 def get_coordinates(geotags):
-    lat = get_decimal_from_dms(geotags['GPSLatitude'], geotags['GPSLatitudeRef'])
-    lon = get_decimal_from_dms(geotags['GPSLongitude'], geotags['GPSLongitudeRef'])
+    lat = get_decimal_from_dms(geotags["GPSLatitude"], geotags["GPSLatitudeRef"])
+    lon = get_decimal_from_dms(geotags["GPSLongitude"], geotags["GPSLongitudeRef"])
     return lat, lon
 
 
 def converter(date_time):
-    format = '%Y:%m:%d'  # The format
+    format = "%Y:%m:%d"  # The format
     datetime_str = datetime.datetime.strptime(date_time, format)
     return datetime_str
 
@@ -97,7 +104,7 @@ def center(win):
     height = win.winfo_height()
     x = (win.winfo_screenwidth() // 2) - (width // 2)
     y = (win.winfo_screenheight() // 2) - (height // 2)
-    win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+    win.geometry(f"{width}x{height}+{x}+{y}")
 
 
 def ask_quit():
@@ -132,8 +139,7 @@ def percentage(part, whole):
 
 
 def start_thread():
-    Thread(target=process,
-           daemon=True).start()
+    Thread(target=process, daemon=True).start()
 
 
 def callback(url):
@@ -148,7 +154,7 @@ def process():
     status_message.set("")
     link1.config(text="")
     link2.config(text="")
-    text.delete('1.0', END)
+    text.delete("1.0", END)
     status.config(text="")
     count = 0
     path = entryText.get() + "/"
@@ -168,8 +174,7 @@ def process():
         f = f.replace("\\", "/")
         count = count + 1
         if count % 10 == 0:
-            status_message.set(
-                "Processing Image: " + str(count) + " of " + str(cpt) + " (" + str(percentage(count, cpt)) + "%)")
+            status_message.set("Processing Image: " + str(count) + " of " + str(cpt) + " (" + str(percentage(count, cpt)) + "%)")
         try:
             exif = get_exif(f)
             geo_tags = get_geotagging(exif)
@@ -177,14 +182,14 @@ def process():
             lat = float(Decimal(coordinates[0]).quantize(Decimal(10) ** -3))
             lon = float(Decimal(coordinates[1]).quantize(Decimal(10) ** -3))
             results = rg.search(coordinates, mode=1)
-            city = results[0].get('name') + ", "
-            state = results[0].get('admin1') + ", "
-            country = results[0].get('cc')
+            city = results[0].get("name") + ", "
+            state = results[0].get("admin1") + ", "
+            country = results[0].get("cc")
             cc = coco.CountryConverter(include_obsolete=True)
-            country = cc.convert(country, to='name_short')
+            country = cc.convert(country, to="name_short")
 
             try:
-                datum = geo_tags['GPSDateStamp']
+                datum = geo_tags["GPSDateStamp"]
                 year = str(converter(datum).year)
                 month = str(converter(datum).month)
             except:
@@ -214,14 +219,12 @@ def process():
                     if lat != 0.000 and lon != 0.000:
                         visited_coordinates_lat.append(lat)
                         visited_coordinates_lon.append(lon)
-                        visited_coordinates.append(
-                            city + country + "|" + str(lat) + "|" + str(lon) + "|" + year + ":" + month)
+                        visited_coordinates.append(city + country + "|" + str(lat) + "|" + str(lon) + "|" + year + ":" + month)
                         months.append(month)
                         years.append(year)
-                        cities.append(results[0].get('name'))
+                        cities.append(results[0].get("name"))
                         countries.append(country)
-                        text.insert(tkinter.END,
-                                    year + "/" + month + " - " + city + country + "\n")
+                        text.insert(tkinter.END, year + "/" + month + " - " + city + country + "\n")
                         text.see("end")
         except:
             # print("GPS Data Missing in " + f)
@@ -235,7 +238,7 @@ def process():
     google_map.coloricon = "http://www.googlemapsmarkers.com/v1/%s/"
     google_map.apikey = google_api_key
     google_map.heatmap(visited_coordinates_lat, visited_coordinates_lon)
-    google_map.plot(visited_coordinates_lat, visited_coordinates_lon, c='#046CC6', edge_width=1.0)
+    google_map.plot(visited_coordinates_lat, visited_coordinates_lon, c="#046CC6", edge_width=1.0)
 
     # ADD MARKERS
     for word in visited_coordinates:
@@ -244,9 +247,10 @@ def process():
         long = word.split("|")[2]
         date = word.split("|")[3]
         date = date.split(":")
-        month_word = (calendar.month_name[int(date[1])])
-        google_map.marker(float(lati), float(long), 'cornflowerblue',
-                          title=str(title) + " (" + str(date[0]) + " " + str(month_word) + ")")
+        month_word = calendar.month_name[int(date[1])]
+        google_map.marker(
+            float(lati), float(long), "cornflowerblue", title=str(title) + " (" + str(date[0]) + " " + str(month_word) + ")"
+        )
 
     google_map.draw("result.html")
 
@@ -257,22 +261,28 @@ def process():
     link2.bind("<Button-1>", open_excel)
 
     df = pd.DataFrame(
-        {'Month': months, 'Year': years, 'City': cities, 'Country': countries, 'Lat.': visited_coordinates_lat,
-         'Long.': visited_coordinates_lon})
-    writer = pd.ExcelWriter("results.xlsx", engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Sheet1', startrow=1, header=False)
+        {
+            "Month": months,
+            "Year": years,
+            "City": cities,
+            "Country": countries,
+            "Lat.": visited_coordinates_lat,
+            "Long.": visited_coordinates_lon,
+        }
+    )
+    writer = pd.ExcelWriter("results.xlsx", engine="xlsxwriter")
+    df.to_excel(writer, sheet_name="Sheet1", startrow=1, header=False)
     workbook = writer.book
-    worksheet = writer.sheets['Sheet1']
+    worksheet = writer.sheets["Sheet1"]
 
-    header_format = workbook.add_format(
-        {'bold': True, 'text_wrap': False, 'valign': 'top', 'fg_color': '#D7E4BC', 'border': 1})
+    header_format = workbook.add_format({"bold": True, "text_wrap": False, "valign": "top", "fg_color": "#D7E4BC", "border": 1})
 
     # Write the column headers with the defined format.
     for col_num, value in enumerate(df.columns.values):
         worksheet.write(0, col_num + 1, value, header_format)
 
     # Close the Pandas Excel writer and output the Excel file.
-    df.sort_values(['Month', 'Year'], ascending=[True, True])
+    df.sort_values(["Month", "Year"], ascending=[True, True])
     writer.save()
     text.insert(tkinter.END, "\n")
     text.insert(tkinter.END, "---------------END---------------\n")

@@ -1,5 +1,5 @@
 # Photo2Location - About
-Convert all your PHOTOS to travel log of visited Locations in Google Maps and MS Excel format. 
+Convert all your PHOTOS to travel log of visited Locations in Google Maps and MS Excel format.
 
 # Blog post
 Blog post about development of this app and visualizing JPEG Exif using Python.
