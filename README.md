@@ -9,6 +9,22 @@ https://www.joe0.com/2019/09/28/visualizing-jpeg-exif-using-python-how-to-conver
 # Reddit
 If you like it, up-vote this app on Reddit: https://www.reddit.com/r/Python/comments/dan1eo/just_made_a_python_app_to_convert_thousands_of_my
 
+# Usage
+
+Before using this you should get a Google Maps API key. See <https://developers.google.com/maps/documentation/javascript/get-api-key>
+
+## Start the app
+
+```
+make run
+```
+
+## Install development dependencies
+
+```
+make requirements-dev
+```
+
 # TODO
 - Image Thumbnails in Google Maps preview
 - Add high level directory paths to Excel travel log
