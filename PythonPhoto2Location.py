@@ -9,16 +9,6 @@ from pathlib import Path
 from sys import exit
 from sys import version_info
 from threading import Thread
-from tkinter import BOTTOM
-from tkinter import END
-from tkinter import filedialog
-from tkinter import Label
-from tkinter import StringVar
-from tkinter import SUNKEN
-from tkinter import Text
-from tkinter import Tk
-from tkinter import W
-from tkinter import X
 from typing import Any
 from typing import Optional
 
@@ -45,18 +35,18 @@ window.wm_iconbitmap("window_icon.ico")
 entryText = tkinter.StringVar()
 textbox = tkinter.Entry(window, width=75, textvariable=entryText)
 textbox.place(x=10, y=20)
-link2 = Label(window, text="", fg="blue", cursor="hand2")
+link2 = tkinter.Label(window, text="", fg="blue", cursor="hand2")
 link2.place(x=160, y=90)
-link1 = Label(window, text="", fg="blue", cursor="hand2")
+link1 = tkinter.Label(window, text="", fg="blue", cursor="hand2")
 link1.place(x=270, y=90)
 label = tkinter.Label(window, text="")
 label.place(x=10, y=80)
 label2 = tkinter.Label(window, text="")
 label2.place(x=10, y=96)
-status_message = StringVar()
-status = Label(window, textvariable=status_message, bd=1, relief=SUNKEN, anchor=W)
-status.pack(side=BOTTOM, fill=X)
-text = Text(window, height=22, width=59)
+status_message = tkinter.StringVar()
+status = tkinter.Label(window, textvariable=status_message, bd=1, relief=tkinter.SUNKEN, anchor=tkinter.W)
+status.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+text = tkinter.Text(window, height=22, width=59)
 text.place(x=10, y=120)
 cpt = 0
 
@@ -128,7 +118,7 @@ def ask_quit():
 
 
 def on_closing():
-    root = Tk()
+    root = tkinter.Tk()
     root.destroy()
     window.destroy()
     exit()
@@ -136,7 +126,7 @@ def on_closing():
 
 def open_file_dialog():
     global cpt
-    root = Tk()
+    root = tkinter.Tk()
     root.withdraw()
     folder_selected = filedialog.askdirectory()
     entryText.set(folder_selected)
@@ -169,7 +159,7 @@ def process():
     status_message.set("")
     link1.config(text="")
     link2.config(text="")
-    text.delete("1.0", END)
+    text.delete("1.0", tkinter.END)
     status.config(text="")
     count = 0
     path = Path(entryText.get())
@@ -214,10 +204,8 @@ def process():
                     year = "1970"
                     month = "00"
 
-            if len(year) == 1:
-                year = "0" + year
-            if len(month) == 1:
-                month = "0" + month
+            year = f"{year:02}"
+            month = f"{month:02}"
 
             # print(f)
             if year != "1970" and month != "00":
