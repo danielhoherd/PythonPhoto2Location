@@ -96,7 +96,7 @@ def get_coordinates(geotags):
     return lat, lon
 
 
-def converter(date_time):
+def date_time_converter(date_time):
     format = "%Y:%m:%d"  # The format
     datetime_str = datetime.datetime.strptime(date_time, format)
     return datetime_str
@@ -128,7 +128,7 @@ def open_file_dialog():
     global cpt
     root = tkinter.Tk()
     root.withdraw()
-    folder_selected = filedialog.askdirectory()
+    folder_selected = tkinter.filedialog.askdirectory()
     entryText.set(folder_selected)
     print("Directory to Process: " + folder_selected)
     cpt = sum([len(files) for r, d, files in os.walk(folder_selected)])
@@ -175,7 +175,9 @@ def process():
     countries = []
 
     for f in files:
+        print(f"working with file: {f}")
         count = count + 1
+        print(f"working with file #{count}: {f}")
         if count % 10 == 0:
             status_message.set("Processing Image: " + str(count) + " of " + str(cpt) + " (" + str(percentage(count, cpt)) + "%)")
         try:
@@ -192,14 +194,15 @@ def process():
             country = cc.convert(country, to="name_short")
 
             try:
-                datum = geo_tags["GPSDateStamp"]
-                year = str(converter(datum).year)
-                month = str(converter(datum).month)
+                datum = geo_tags["GPSDateStamp"]  # TODO: handle when this is missing
+                year = str(date_time_converter(datum).year)
+                month = str(date_time_converter(datum).month)
             except:
+                raise
                 try:
                     datum = str(PilImage.open(f)._getexif()[36867]).split(" ", 1)[0]
-                    year = str(converter(datum).year)
-                    month = str(converter(datum).month)
+                    year = str(date_time_converter(datum).year)
+                    month = str(date_time_converter(datum).month)
                 except:
                     year = "1970"
                     month = "00"
