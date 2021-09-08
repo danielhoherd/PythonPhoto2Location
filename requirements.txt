@@ -1,6 +1,6 @@
 country_converter==0.6.6
 gmplot==1.2.0
 pandas==0.25.1
-Pillow==8.1.1
+Pillow==8.3.2
 reverse-geocoder==1.5.1
 typing==3.7.4.1
