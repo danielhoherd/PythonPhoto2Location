@@ -53,7 +53,7 @@ cpt = 0
 
 def get_labeled_exif(exif):
     labeled = {}
-    for (key, val) in exif.items():
+    for key, val in exif.items():
         labeled[TAGS.get(key)] = val
     return labeled
 
@@ -68,12 +68,12 @@ def get_geotagging(exif):
     if not exif:
         raise ValueError("No EXIF metadata found")
     geo_tagging = {}
-    for (idx, tag) in TAGS.items():
+    for idx, tag in TAGS.items():
         if tag == "GPSInfo":
             if idx not in exif:
                 # raise ValueError("No EXIF geo_tagging found")
                 exit("No coords found in EXIF data")
-            for (key, val) in GPSTAGS.items():
+            for key, val in GPSTAGS.items():
                 if key in exif[idx]:
                     geo_tagging[val] = exif[idx][key]
     return geo_tagging
